@@ -62,6 +62,21 @@
   .dateRow input{border:none;background:transparent;font-size:14px;font-weight:600;text-align:right;color:var(--ink);}
 
   .exCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
+  .exTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .restChip{display:inline-flex;align-items:center;gap:4px;background:var(--soft);color:#5A5F67;border:1px solid var(--line2);border-radius:20px;padding:5px 10px;font-size:12px;font-weight:700;white-space:nowrap;}
+  .exImg{display:block;width:100%;height:104px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:10px;padding:4px;cursor:zoom-in;}
+  .lightbox{position:fixed;inset:0;background:rgba(17,18,20,.82);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;}
+  .lbInner{max-width:100%;text-align:center;}
+  .lbInner img{max-width:92vw;max-height:72vh;background:#fff;border-radius:16px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .lbCap{color:#fff;font-size:14px;font-weight:600;margin-top:14px;}
+  .lbHint{color:#B9BEC4;font-size:12px;margin-top:4px;}
+  .restPill{position:fixed;bottom:144px;left:50%;transform:translateX(-50%);width:min(440px,92%);background:var(--ink);color:#fff;border-radius:16px;padding:11px 14px;z-index:18;box-shadow:0 10px 34px rgba(0,0,0,.28);}
+  .restRow{display:flex;align-items:center;gap:8px;}
+  .restLabel{font-size:11px;color:#B9BEC4;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .restTime{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;min-width:66px;text-align:center;}
+  .restBtn{background:rgba(255,255,255,.14);color:#fff;border:none;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;}
+  .restBar{height:4px;background:rgba(255,255,255,.18);border-radius:3px;margin-top:9px;overflow:hidden;}
+  .restBarFill{height:100%;width:100%;background:var(--accent);border-radius:3px;transition:width 1s linear;}
   .exName{font-size:15px;font-weight:700;}
   .exName b{color:#C4C8CC;font-weight:800;margin-right:6px;}
   .exMus{font-size:12px;color:var(--muted);margin-top:2px;}
@@ -146,31 +161,31 @@ function ico(name, size, sw){
 /* ================= PLAN (del PDF) ================= */
 var PLAN = [
   {id:1, short:"Día 1", name:"Piernas y Glúteos", exercises:[
-    {id:"d1e1", name:"Sentadilla · Barra", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,8]},
-    {id:"d1e2", name:"Peso muerto · Barra hexagonal", muscles:"Lumbar, Corvas, Glúteos", type:"weight", targets:[12,10,8], note:"Carga muy poco o nada para ir cogiendo la técnica poco a poco."},
-    {id:"d1e3", name:"Prensa a 45°", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,10,10]},
-    {id:"d1e4", name:"Curl femoral sentado", muscles:"Corvas", type:"weight", targets:[12,10,10,10]},
-    {id:"d1e5", name:"Extensión de piernas sentado", muscles:"Cuádriceps", type:"weight", targets:[12,10,10]},
-    {id:"d1e6", name:"Hip thrust alto", muscles:"Glúteos", type:"weight", targets:[12,12,12,12], note:"De momento solo para coger técnica del movimiento."}
+    {id:"d1e1", name:"Sentadilla · Barra", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,8], rest:120},
+    {id:"d1e2", name:"Peso muerto · Barra hexagonal", muscles:"Lumbar, Corvas, Glúteos", type:"weight", targets:[12,10,8], rest:120, note:"Carga muy poco o nada para ir cogiendo la técnica poco a poco."},
+    {id:"d1e3", name:"Prensa a 45°", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,10,10], rest:90},
+    {id:"d1e4", name:"Curl femoral sentado", muscles:"Corvas", type:"weight", targets:[12,10,10,10], rest:60},
+    {id:"d1e5", name:"Extensión de piernas sentado", muscles:"Cuádriceps", type:"weight", targets:[12,10,10], rest:60},
+    {id:"d1e6", name:"Hip thrust alto", muscles:"Glúteos", type:"weight", targets:[12,12,12,12], rest:90, note:"De momento solo para coger técnica del movimiento."}
   ]},
   {id:2, short:"Día 2", name:"Pecho, Bíceps y Tríceps", exercises:[
-    {id:"d2e1", name:"Press de pectoral en máquina", muscles:"Pecho", type:"weight", targets:[12,10,8], note:"Máquina Pure Strength, junto a la jaula de sentadillas."},
-    {id:"d2e2", name:"Press de banca · Barra", muscles:"Pecho", type:"weight", targets:[12,12,12], note:"Trabajar técnica con poco peso."},
-    {id:"d2e3", name:"Planchas", muscles:"Pecho / Core", type:"time", targets:[40,40,40], note:"Realizar cambios de posición."},
-    {id:"d2e4", name:"Fly · Kinesis", muscles:"Pecho", type:"weight", targets:[12,10,8]},
-    {id:"d2e5", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8]},
-    {id:"d2e6", name:"Curl isométrico · Pulley", muscles:"Bíceps", type:"weight", targets:[12,10,8]},
-    {id:"d2e7", name:"Extensión de codo", muscles:"Tríceps", type:"weight", targets:[12,10,8]},
-    {id:"d2e8", name:"Fondos de tríceps · Caja", muscles:"Tríceps", type:"reps", targets:[12,10,8]}
+    {id:"d2e1", name:"Press de pectoral en máquina", muscles:"Pecho", type:"weight", targets:[12,10,8], rest:90, note:"Máquina Pure Strength, junto a la jaula de sentadillas."},
+    {id:"d2e2", name:"Press de banca · Barra", muscles:"Pecho", type:"weight", targets:[12,12,12], rest:120, note:"Trabajar técnica con poco peso."},
+    {id:"d2e3", name:"Planchas", muscles:"Pecho / Core", type:"time", targets:[40,40,40], rest:45, note:"Realizar cambios de posición."},
+    {id:"d2e4", name:"Fly · Kinesis", muscles:"Pecho", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e5", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e6", name:"Curl isométrico · Pulley", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e7", name:"Extensión de codo", muscles:"Tríceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e8", name:"Fondos de tríceps · Caja", muscles:"Tríceps", type:"reps", targets:[12,10,8], rest:60}
   ]},
   {id:3, short:"Día 3", name:"Espalda y Bíceps", exercises:[
-    {id:"d3e1", name:"Jalón al pecho", muscles:"Dorsales", type:"weight", targets:[12,10,8]},
-    {id:"d3e2", name:"Remo mancuerna transversal (izq.)", muscles:"Espalda", type:"weight", targets:[12,10,8]},
-    {id:"d3e3", name:"Máquina de remos sagital", muscles:"Espalda", type:"weight", targets:[12,10,8]},
-    {id:"d3e4", name:"Remo con mancuernas", muscles:"Espalda", type:"weight", targets:[12,10,8]},
-    {id:"d3e5", name:"Dominadas", muscles:"Espalda", type:"reps", targets:[12,10,8]},
-    {id:"d3e6", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8]},
-    {id:"d3e7", name:"Predicador · Barra", muscles:"Bíceps", type:"weight", targets:[12,10,8]}
+    {id:"d3e1", name:"Jalón al pecho", muscles:"Dorsales", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e2", name:"Remo mancuerna transversal (izq.)", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e3", name:"Máquina de remos sagital", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e4", name:"Remo con mancuernas", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e5", name:"Dominadas", muscles:"Espalda", type:"reps", targets:[12,10,8], rest:90},
+    {id:"d3e6", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d3e7", name:"Predicador · Barra", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60}
   ]}
 ];
 var ALL = PLAN.reduce(function(a,d){return a.concat(d.exercises);},[]);
@@ -197,6 +212,69 @@ function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").rep
 var KEY="fuerza-sessions";
 function loadSessions(){ try{ var v=localStorage.getItem(KEY); return v?JSON.parse(v):[]; }catch(e){ return []; } }
 function saveSessions(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); return true; }catch(e){ return false; } }
+
+/* Ajustes (descansos personalizados) — clave separada, no afecta a las sesiones */
+var SKEY="fuerza-settings";
+function loadSettings(){ try{ var v=localStorage.getItem(SKEY); return v?JSON.parse(v):{rest:{}}; }catch(e){ return {rest:{}}; } }
+function saveSettings(){ try{ localStorage.setItem(SKEY, JSON.stringify(settings)); }catch(e){} }
+var settings=loadSettings(); if(!settings.rest) settings.rest={};
+function effRest(exId){ var o=settings.rest[exId]; var ex=findEx(exId); return (o!=null?o:(ex&&ex.rest))||60; }
+function mmss(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+":"+pad(s%60); }
+
+/* ---- Sonido (bip al terminar el descanso) ---- */
+var actx=null;
+function ensureAudio(){ try{ if(!actx){ var AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); } if(actx&&actx.state==="suspended") actx.resume(); }catch(e){} }
+function beep(){ try{ if(!actx) return; var t=actx.currentTime;
+  function tone(f,start,dur){ var o=actx.createOscillator(),g=actx.createGain(); o.type="sine"; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0.0001,t+start); g.gain.exponentialRampToValueAtTime(0.35,t+start+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+start+dur); o.start(t+start); o.stop(t+start+dur+0.02); }
+  tone(880,0,0.35); tone(1175,0.18,0.4);
+}catch(e){} }
+
+/* ---- Temporizador de descanso ---- */
+var restTimer=null;
+function clearRest(){ if(restTimer){ if(restTimer.iv) clearInterval(restTimer.iv); if(restTimer.el&&restTimer.el.parentNode) restTimer.el.parentNode.removeChild(restTimer.el); restTimer=null; } }
+function startRest(exId){
+  clearRest(); ensureAudio();
+  var total=effRest(exId);
+  var el=buildRestPill(exId,total);
+  app.appendChild(el);
+  restTimer={exId:exId, remaining:total, total:total, el:el, iv:null};
+  restTimer.iv=setInterval(tickRest,1000);
+  updateRestPill();
+}
+function tickRest(){ if(!restTimer) return; restTimer.remaining--; if(restTimer.remaining<=0) finishRest(); else updateRestPill(); }
+function finishRest(){ if(!restTimer) return; updateRestPill(true); beep(); if(navigator.vibrate){ try{ navigator.vibrate([200,80,200]); }catch(e){} }
+  clearInterval(restTimer.iv); restTimer.iv=null; var el=restTimer.el;
+  setTimeout(function(){ if(restTimer&&restTimer.el===el) clearRest(); },2600); }
+function buildRestPill(exId,total){
+  var ex=findEx(exId);
+  var label=h("div",{class:"restLabel"},"Descanso · "+ex.name);
+  var timeEl=h("div",{class:"restTime"}, mmss(total));
+  var minus=h("button",{class:"restBtn",onclick:function(){ if(restTimer){ restTimer.remaining=Math.max(1,restTimer.remaining-15); updateRestPill(); } }},"−15");
+  var plus=h("button",{class:"restBtn",onclick:function(){ if(restTimer){ restTimer.remaining+=15; restTimer.total=Math.max(restTimer.total,restTimer.remaining); updateRestPill(); } }},"+15");
+  var skip=h("button",{class:"restBtn",onclick:clearRest},"Saltar");
+  var fill=h("div",{class:"restBarFill"});
+  var el=h("div",{class:"restPill"}, label,
+    h("div",{class:"restRow"}, minus, timeEl, plus, h("div",{style:"flex:1"}), skip),
+    h("div",{class:"restBar"}, fill));
+  el._time=timeEl; el._fill=fill; el._label=label;
+  return el;
+}
+function updateRestPill(done){ if(!restTimer||!restTimer.el) return; var el=restTimer.el;
+  el._time.textContent = done?"0:00":mmss(restTimer.remaining);
+  el._fill.style.width = (done?0:Math.max(0,restTimer.remaining/restTimer.total)*100)+"%";
+  if(done){ el._label.textContent="¡Descanso completado! A por la siguiente 💪"; el._fill.style.background="#6EE7B7"; }
+}
+
+/* ---- Visor de imagen ampliada ---- */
+function openLightbox(ex){
+  var img=h("img",{src:"img/"+ex.id+".png",alt:ex.name});
+  var ov=h("div",{class:"lightbox"}, h("div",{class:"lbInner"}, img,
+    h("div",{class:"lbCap"}, ex.name),
+    h("div",{class:"lbHint"}, ex.muscles+" · toca para cerrar")));
+  ov.addEventListener("click",function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); });
+  document.body.appendChild(ov);
+}
 
 /* ================= Estado ================= */
 var sessions = loadSessions();
@@ -229,6 +307,7 @@ function lastValue(exId,setIdx,field){
 
 /* ================= Render principal ================= */
 function render(){
+  clearRest();
   app.innerHTML="";
   app.appendChild(Header());
   if(state.saveError) app.appendChild(h("div",{class:"warn"}, elHTML(ico("info",14)), " No se pudo guardar en el dispositivo. Exporta una copia de seguridad."));
@@ -379,11 +458,22 @@ function refreshCounter(){ if(loggerCounterEl) updateCounterEl(loggerCounterEl);
 
 function ExerciseCard(ex,index){
   var card=h("div",{class:"exCard"});
-  card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;gap:8px"},
+  var restChip=h("button",{class:"restChip"},"⏱ "+mmss(effRest(ex.id)));
+  restChip.addEventListener("click",function(){
+    var v=prompt("Descanso entre series para «"+ex.name+"» (segundos):", effRest(ex.id));
+    if(v==null) return; v=parseInt(v,10); if(isNaN(v)||v<0||v>3600) return;
+    settings.rest[ex.id]=v; saveSettings(); restChip.textContent="⏱ "+mmss(v);
+  });
+  card.appendChild(h("div",{class:"exTop"},
     h("div",{style:"flex:1"},
       h("div",{class:"exName",html:"<b>"+index+"</b>"+esc(ex.name)}),
-      h("div",{class:"exMus"}, ex.muscles))));
+      h("div",{class:"exMus"}, ex.muscles)),
+    restChip));
   if(ex.note) card.appendChild(h("div",{class:"coachNote"},"💡 "+ex.note));
+  var img=h("img",{class:"exImg",src:"img/"+ex.id+".png",alt:ex.name,loading:"lazy"});
+  img.addEventListener("click",function(){ openLightbox(ex); });
+  img.addEventListener("error",function(){ img.style.display="none"; });
+  card.appendChild(img);
 
   var isTime=ex.type==="time", isReps=ex.type==="reps";
   var headRow=h("div",{class:"rowGrid",style:"margin-top:10px;margin-bottom:2px"},
@@ -414,7 +504,7 @@ function buildRow(ex,i){
   else if(isReps) row.appendChild(numInput(ex.id,i,"reps","12",null));
   else { row.appendChild(numInput(ex.id,i,"reps","12",null)); row.appendChild(numInput(ex.id,i,"weight","kg","kg")); }
   var chk=h("button",{class:"checkBtn"+(state.draft[ex.id][i].done?" done":"")}, elHTML(ico("check",15,3)));
-  chk.addEventListener("click",function(){ state.draft[ex.id][i].done=!state.draft[ex.id][i].done; chk.classList.toggle("done"); refreshCounter(); });
+  chk.addEventListener("click",function(){ var now=!state.draft[ex.id][i].done; state.draft[ex.id][i].done=now; chk.classList.toggle("done"); refreshCounter(); if(now) startRest(ex.id); });
   row.appendChild(h("div",{style:"display:flex;gap:4px;width:44px;justify-content:flex-end"}, chk));
   return row;
 }
