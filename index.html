@@ -98,6 +98,21 @@
   .saveBtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:700;}
 
   .histCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
+  .stravaBtn{display:inline-flex;align-items:center;gap:5px;background:#FC4C02;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;}
+  .sheetOv{position:fixed;inset:0;background:rgba(17,18,20,.6);display:flex;align-items:flex-end;justify-content:center;z-index:120;}
+  .sheet{background:#fff;width:min(480px,100%);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;}
+  .sheetH{font-size:17px;font-weight:800;margin-bottom:14px;}
+  .sheetRow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .sheetRow .k{color:var(--muted);}
+  .sheetRow .v{font-weight:700;text-align:right;}
+  .sheetLab{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 6px;}
+  .sheetDesc{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;line-height:1.55;white-space:pre-wrap;font-family:inherit;margin:0;max-height:170px;overflow:auto;}
+  .sheetBtns{display:flex;gap:8px;margin-top:14px;}
+  .btnPri{flex:2;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;}
+  .btnSec{flex:1;background:var(--soft);color:var(--ink);border:1px solid var(--line2);border-radius:12px;padding:12px;font-size:14px;font-weight:700;}
+  .btnStrava{display:block;text-align:center;background:#FC4C02;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;margin-top:8px;text-decoration:none;}
+  .sheetHelp{font-size:12px;color:#6A6F76;margin-top:12px;line-height:1.55;}
+  .sheetClose{width:100%;background:none;border:none;color:var(--muted);font-size:14px;font-weight:600;padding:12px;margin-top:4px;}
   .histDate{font-size:15px;font-weight:700;text-transform:capitalize;}
   .histDay{font-size:13px;color:var(--accent);font-weight:600;margin-top:2px;}
   .trashBtn{border:none;background:transparent;color:#C4C8CC;padding:4px;}
@@ -572,7 +587,9 @@ function History(){
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start"},
       h("div",{}, h("div",{class:"histDate"}, fmtLong(s.date)),
         h("div",{class:"histDay"}, (day?day.short+" · "+day.name:"—"))),
-      h("button",{class:"trashBtn",onclick:function(){ deleteSession(s.id); }}, elHTML(ico("trash",15)))));
+      h("div",{style:"display:flex;gap:8px;align-items:center"},
+        h("button",{class:"stravaBtn",onclick:function(){ openStravaSheet(s); }},"Strava"),
+        h("button",{class:"trashBtn",onclick:function(){ deleteSession(s.id); }}, elHTML(ico("trash",15))))));
     var stats=h("div",{style:"display:flex;gap:16px;margin-top:10px"},
       h("div",{}, h("div",{class:"statVal"}, totalSets), h("div",{class:"statLab"},"Series")));
     if(volume>0) stats.appendChild(h("div",{}, h("div",{class:"statVal"}, Math.round(volume).toLocaleString("es-ES")+" kg"), h("div",{class:"statLab"},"Volumen")));
@@ -596,6 +613,68 @@ function History(){
 function deleteSession(id){
   if(!confirm("¿Eliminar esta sesión? No se puede deshacer.")) return;
   sessions=sessions.filter(function(s){return s.id!==id;}); saveSessions(sessions); render();
+}
+
+/* ---- Preparar sesión para Strava (Nivel 1: manual asistido) ---- */
+function stravaData(s){
+  var day=findDay(s.dayId);
+  var title=day?day.name:"Entrenamiento de fuerza";
+  var base = s.createdAt ? new Date(s.createdAt) : new Date(s.date+"T19:30:00");
+  var start = new Date(base.getTime() - 90*60000); // hora de subida − 1,5 h
+  var startStr = pad(start.getHours())+":"+pad(start.getMinutes());
+  var dateStr = new Date(s.date+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+  dateStr = dateStr.charAt(0).toUpperCase()+dateStr.slice(1);
+  var lines=[];
+  if(day){ day.exercises.forEach(function(ex){
+    var sets=s.entries[ex.id]; if(!sets||!sets.length) return;
+    var parts=sets.map(function(set){
+      if(set.seconds!=null) return set.seconds+"s";
+      if(ex.type==="reps"||set.weight==null) return "×"+(set.reps!=null?set.reps:"–");
+      return set.weight+"kg×"+(set.reps!=null?set.reps:"–");
+    });
+    lines.push(ex.name+": "+parts.join(", "));
+  }); }
+  return {title:title, type:"Entrenamiento con pesas", dateStr:dateStr, startStr:startStr, dur:"1 h", desc:lines.join("\n")};
+}
+function copyText(text, btn){
+  var ok=function(){ var old=btn.textContent; btn.textContent="¡Copiado!"; setTimeout(function(){ btn.textContent=old; },1400); };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok, function(){ fallbackCopy(text,ok); }); return; }
+  }catch(e){}
+  fallbackCopy(text,ok);
+}
+function fallbackCopy(text, ok){
+  try{ var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); ok&&ok(); }catch(e){}
+}
+function openStravaSheet(s){
+  var d=stravaData(s);
+  function row(k,v){ return h("div",{class:"sheetRow"}, h("span",{class:"k"},k), h("span",{class:"v"},v)); }
+  var descBox=h("pre",{class:"sheetDesc"}, d.desc||"(sin series registradas)");
+  var copyDesc=h("button",{class:"btnPri"},"Copiar descripción");
+  copyDesc.addEventListener("click",function(){ copyText(d.desc, copyDesc); });
+  var copyTitle=h("button",{class:"btnSec"},"Copiar título");
+  copyTitle.addEventListener("click",function(){ copyText(d.title, copyTitle); });
+  var openApp=h("a",{class:"btnStrava",href:"strava://",target:"_blank",rel:"noopener"},"Abrir Strava");
+  var closeBtn=h("button",{class:"sheetClose"},"Cerrar");
+  var sheet=h("div",{class:"sheet"},
+    h("div",{class:"sheetH"},"Enviar a Strava"),
+    row("Título", d.title),
+    row("Tipo", d.type),
+    row("Fecha", d.dateStr),
+    row("Inicio", d.startStr),
+    row("Duración", d.dur),
+    h("div",{class:"sheetLab"},"Descripción"),
+    descBox,
+    h("div",{class:"sheetBtns"}, copyDesc, copyTitle),
+    openApp,
+    h("div",{class:"sheetHelp"},"En Strava: toca ➕ → Actividad manual, elige «Entrenamiento con pesas», pega la descripción y ajusta fecha, hora ("+d.startStr+") y duración (1 h)."),
+    closeBtn
+  );
+  var ov=h("div",{class:"sheetOv"}, sheet);
+  function close(){ if(ov.parentNode) ov.parentNode.removeChild(ov); }
+  closeBtn.addEventListener("click", close);
+  ov.addEventListener("click", function(e){ if(e.target===ov) close(); });
+  document.body.appendChild(ov);
 }
 
 /* ---- Estadísticas ---- */
