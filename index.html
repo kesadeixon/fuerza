@@ -99,6 +99,7 @@
 
   .histCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
   .stravaBtn{display:inline-flex;align-items:center;gap:5px;background:#FC4C02;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;}
+  .claudeBtn{display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;}
   .sheetOv{position:fixed;inset:0;background:rgba(17,18,20,.6);display:flex;align-items:flex-end;justify-content:center;z-index:120;}
   .sheet{background:#fff;width:min(480px,100%);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;}
   .sheetH{font-size:17px;font-weight:800;margin-bottom:14px;}
@@ -352,11 +353,12 @@ function BackupMenu(){
   wrap.appendChild(btn);
   if(state.menuOpen){
     wrap.appendChild(h("div",{class:"backdrop",onclick:function(){ state.menuOpen=false; render(); }}));
-    var expBtn=h("button",{class:"menuItem",onclick:doExport}, elHTML(ico("down",15)), " Exportar copia");
+    var expBtn=h("button",{class:"menuItem",onclick:doExport}, elHTML(ico("down",15)), " Exportar copia (.json)");
+    var claudeBtn=h("button",{class:"menuItem",onclick:doExportClaude}, elHTML(ico("down",15)), " Exportar para Claude (.md)");
     var impLabel=h("label",{class:"menuItem"}, elHTML(ico("up",15)), " Importar copia");
     var file=h("input",{type:"file",accept:"application/json",style:"display:none",onchange:doImport});
     impLabel.appendChild(file);
-    wrap.appendChild(h("div",{class:"menu"}, expBtn, impLabel));
+    wrap.appendChild(h("div",{class:"menu"}, expBtn, claudeBtn, impLabel));
   }
   return wrap;
 }
@@ -375,6 +377,59 @@ function doImport(e){
     } else alert("El archivo no tiene el formato esperado.");
   }catch(err){ alert("No se pudo leer el archivo."); } state.menuOpen=false; render(); };
   r.readAsText(f);
+}
+
+/* ---- Exportación para Claude (Markdown con nombres resueltos) ---- */
+function setLabel(ex,set){
+  if(set.seconds!=null) return set.seconds+"s";
+  if((ex&&ex.type==="reps")||set.weight==null) return "×"+(set.reps!=null?set.reps:"–");
+  return set.weight+"kg×"+(set.reps!=null?set.reps:"–");
+}
+function sessionStats(s){
+  var sets=0, volume=0;
+  for(var k in s.entries){ sets+=s.entries[k].length; s.entries[k].forEach(function(x){ volume+=(x.reps||0)*(x.weight||0); }); }
+  return {sets:sets, volume:Math.round(volume)};
+}
+function sessionMarkdown(s){
+  var day=findDay(s.dayId); var st=sessionStats(s);
+  var lines=["### "+s.date+" · "+(day?day.short+" · "+day.name:"Sesión")];
+  var listed={};
+  if(day){ day.exercises.forEach(function(ex){
+    var sets=s.entries[ex.id]; if(!sets||!sets.length) return; listed[ex.id]=true;
+    lines.push("- "+ex.name+": "+sets.map(function(set){return setLabel(ex,set);}).join(", "));
+  }); }
+  for(var exId in s.entries){ if(listed[exId]) continue; var ex=findEx(exId);
+    lines.push("- "+(ex?ex.name:exId)+": "+s.entries[exId].map(function(set){return setLabel(ex,set);}).join(", ")); }
+  lines.push("Volumen: "+st.volume+" kg · Series: "+st.sets);
+  return lines.join("\n");
+}
+function historyMarkdown(){
+  var ordered=sessions.slice().sort(function(a,b){ return a.date.localeCompare(b.date)||((a.createdAt||0)-(b.createdAt||0)); });
+  var out=[];
+  out.push("# Registro de entrenamiento de fuerza");
+  out.push("");
+  out.push("Plan: Fuerza tres días — Día 1: Piernas y Glúteos · Día 2: Pecho, Bíceps y Tríceps · Día 3: Espalda y Bíceps.");
+  out.push("Exportado: "+todayISO()+" · Sesiones registradas: "+sessions.length+".");
+  out.push("Notación de series: `pesoKg×reps`; `×reps` = peso corporal (sin carga externa); `Ns` = isométrico en segundos. Volumen = suma de reps×peso.");
+  out.push("");
+  out.push("## Resumen");
+  out.push("");
+  out.push("| Fecha | Día | Series | Volumen (kg) |");
+  out.push("|---|---|---|---|");
+  ordered.forEach(function(s){ var day=findDay(s.dayId); var st=sessionStats(s);
+    out.push("| "+s.date+" | "+(day?day.short+" · "+day.name:"—")+" | "+st.sets+" | "+st.volume+" |"); });
+  out.push("");
+  out.push("## Detalle por sesión");
+  out.push("");
+  ordered.forEach(function(s){ out.push(sessionMarkdown(s)); out.push(""); });
+  return out.join("\n").trim()+"\n";
+}
+function doExportClaude(){
+  if(!sessions.length){ alert("Aún no hay sesiones que exportar."); state.menuOpen=false; render(); return; }
+  var blob=new Blob([historyMarkdown()],{type:"text/markdown"});
+  var url=URL.createObjectURL(blob); var a=document.createElement("a");
+  a.href=url; a.download="fuerza-para-claude-"+todayISO()+".md"; a.click(); URL.revokeObjectURL(url);
+  state.menuOpen=false; render();
 }
 
 /* ---- Elegir día ---- */
@@ -587,9 +642,15 @@ function History(){
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start"},
       h("div",{}, h("div",{class:"histDate"}, fmtLong(s.date)),
         h("div",{class:"histDay"}, (day?day.short+" · "+day.name:"—"))),
-      h("div",{style:"display:flex;gap:8px;align-items:center"},
-        h("button",{class:"stravaBtn",onclick:function(){ openStravaSheet(s); }},"Strava"),
-        h("button",{class:"trashBtn",onclick:function(){ deleteSession(s.id); }}, elHTML(ico("trash",15))))));
+      (function(){
+        var actions=h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"});
+        var claudeCopy=h("button",{class:"claudeBtn"},"Claude");
+        claudeCopy.addEventListener("click",function(){ copyText(sessionMarkdown(s), claudeCopy); });
+        actions.appendChild(h("button",{class:"stravaBtn",onclick:function(){ openStravaSheet(s); }},"Strava"));
+        actions.appendChild(claudeCopy);
+        actions.appendChild(h("button",{class:"trashBtn",onclick:function(){ deleteSession(s.id); }}, elHTML(ico("trash",15))));
+        return actions;
+      })()));
     var stats=h("div",{style:"display:flex;gap:16px;margin-top:10px"},
       h("div",{}, h("div",{class:"statVal"}, totalSets), h("div",{class:"statLab"},"Series")));
     if(volume>0) stats.appendChild(h("div",{}, h("div",{class:"statVal"}, Math.round(volume).toLocaleString("es-ES")+" kg"), h("div",{class:"statLab"},"Volumen")));
