@@ -100,6 +100,10 @@
   .histCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
   .stravaBtn{display:inline-flex;align-items:center;gap:5px;background:#FC4C02;color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;}
   .claudeBtn{display:inline-flex;align-items:center;gap:5px;background:var(--accent);color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;}
+  .exNote{width:100%;margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;line-height:1.4;background:var(--soft);color:var(--ink);resize:vertical;box-sizing:border-box;}
+  .exNote:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .exNoteLab{font-size:12px;color:var(--muted);font-weight:600;margin-top:12px;display:flex;align-items:center;gap:5px;}
+  .histNote{font-size:13px;color:#6A6F76;font-style:italic;margin:2px 0 4px;padding-left:10px;border-left:2px solid var(--line2);}
   .sheetOv{position:fixed;inset:0;background:rgba(17,18,20,.6);display:flex;align-items:flex-end;justify-content:center;z-index:120;}
   .sheet{background:#fff;width:min(480px,100%);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;}
   .sheetH{font-size:17px;font-weight:800;margin-bottom:14px;}
@@ -240,11 +244,13 @@ function mmss(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+":"+pad(s
 /* ---- Sonido (bip al terminar el descanso) ---- */
 var actx=null;
 function ensureAudio(){ try{ if(!actx){ var AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); } if(actx&&actx.state==="suspended") actx.resume(); }catch(e){} }
-function beep(){ try{ if(!actx) return; var t=actx.currentTime;
-  function tone(f,start,dur){ var o=actx.createOscillator(),g=actx.createGain(); o.type="sine"; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
-    g.gain.setValueAtTime(0.0001,t+start); g.gain.exponentialRampToValueAtTime(0.35,t+start+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+start+dur); o.start(t+start); o.stop(t+start+dur+0.02); }
-  tone(880,0,0.35); tone(1175,0.18,0.4);
+function playTone(freq,dur,when,vol){ try{ if(!actx) return; var t=actx.currentTime+(when||0);
+  var o=actx.createOscillator(), g=actx.createGain(); o.type="sine"; o.frequency.value=freq; o.connect(g); g.connect(actx.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.35,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.02);
 }catch(e){} }
+function tick(){ if(actx&&actx.state==="suspended"){ try{ actx.resume(); }catch(e){} } playTone(1000,0.09,0,0.3); }
+function beep(){ playTone(880,0.34,0,0.38); playTone(1320,0.5,0.16,0.42); }
 
 /* ---- Temporizador de descanso ---- */
 var restTimer=null;
@@ -258,7 +264,11 @@ function startRest(exId){
   restTimer.iv=setInterval(tickRest,1000);
   updateRestPill();
 }
-function tickRest(){ if(!restTimer) return; restTimer.remaining--; if(restTimer.remaining<=0) finishRest(); else updateRestPill(); }
+function tickRest(){ if(!restTimer) return; restTimer.remaining--;
+  if(restTimer.remaining<=0){ finishRest(); return; }
+  if(restTimer.remaining<=5){ tick(); if(navigator.vibrate){ try{ navigator.vibrate(50); }catch(e){} } }
+  updateRestPill();
+}
 function finishRest(){ if(!restTimer) return; updateRestPill(true); beep(); if(navigator.vibrate){ try{ navigator.vibrate([200,80,200]); }catch(e){} }
   clearInterval(restTimer.iv); restTimer.iv=null; var el=restTimer.el;
   setTimeout(function(){ if(restTimer&&restTimer.el===el) clearRest(); },2600); }
@@ -279,6 +289,7 @@ function buildRestPill(exId,total){
 function updateRestPill(done){ if(!restTimer||!restTimer.el) return; var el=restTimer.el;
   el._time.textContent = done?"0:00":mmss(restTimer.remaining);
   el._fill.style.width = (done?0:Math.max(0,restTimer.remaining/restTimer.total)*100)+"%";
+  el._time.style.color = done ? "#6EE7B7" : (restTimer.remaining<=5 ? "#FBBF24" : "");
   if(done){ el._label.textContent="¡Descanso completado! A por la siguiente 💪"; el._fill.style.background="#6EE7B7"; }
 }
 
@@ -394,12 +405,15 @@ function sessionMarkdown(s){
   var day=findDay(s.dayId); var st=sessionStats(s);
   var lines=["### "+s.date+" · "+(day?day.short+" · "+day.name:"Sesión")];
   var listed={};
+  function exLine(ex,exId){
+    var sets=s.entries[exId];
+    lines.push("- "+(ex?ex.name:exId)+": "+sets.map(function(set){return setLabel(ex,set);}).join(", "));
+    if(s.notes&&s.notes[exId]) lines.push("  - _Sensación: "+s.notes[exId]+"_");
+  }
   if(day){ day.exercises.forEach(function(ex){
-    var sets=s.entries[ex.id]; if(!sets||!sets.length) return; listed[ex.id]=true;
-    lines.push("- "+ex.name+": "+sets.map(function(set){return setLabel(ex,set);}).join(", "));
+    if(!s.entries[ex.id]||!s.entries[ex.id].length) return; listed[ex.id]=true; exLine(ex,ex.id);
   }); }
-  for(var exId in s.entries){ if(listed[exId]) continue; var ex=findEx(exId);
-    lines.push("- "+(ex?ex.name:exId)+": "+s.entries[exId].map(function(set){return setLabel(ex,set);}).join(", ")); }
+  for(var exId in s.entries){ if(listed[exId]) continue; exLine(findEx(exId),exId); }
   lines.push("Volumen: "+st.volume+" kg · Series: "+st.sets);
   return lines.join("\n");
 }
@@ -487,15 +501,16 @@ function startDay(id){
       return {reps:lastValue(ex.id,i,"reps")||t, weight:lastValue(ex.id,i,"weight"), done:false};
     });
   });
-  state.draft=d; state.dayId=id; state.entryDate=todayISO(); state.view="train"; render();
+  state.draft=d; state.draftNotes={}; state.dayId=id; state.entryDate=todayISO(); state.view="train"; render();
 }
 
 /* ---- Logger ---- */
 function Logger(){
   var day=findDay(state.dayId);
+  if(!state.draftNotes) state.draftNotes={};
   var wrap=h("div",{style:"padding-bottom:96px"});
   var head=h("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:14px"},
-    h("button",{class:"iconBtn",onclick:function(){ state.dayId=null; state.draft={}; render(); }}, elHTML(ico("back",20))),
+    h("button",{class:"iconBtn",onclick:function(){ state.dayId=null; state.draft={}; state.draftNotes={}; render(); }}, elHTML(ico("back",20))),
     h("div",{style:"flex:1"},
       h("div",{class:"eyebrow"}, day.short.toUpperCase()),
       h("div",{class:"dayName"}, day.name)));
@@ -563,6 +578,13 @@ function ExerciseCard(ex,index){
   var remBtn=h("button",{class:"addSet muted",onclick:function(){ removeSet(ex,rowsBox); }}, elHTML(ico("minus",14)), " Quitar");
   if(state.draft[ex.id].length>1) controls.appendChild(remBtn);
   card.appendChild(controls);
+
+  card.appendChild(h("div",{class:"exNoteLab"},"📝 Sensaciones de hoy"));
+  var noteBox=h("textarea",{class:"exNote",rows:"2",placeholder:"Opcional: energía, molestias, técnica, RPE…"});
+  noteBox.value=(state.draftNotes&&state.draftNotes[ex.id])||"";
+  noteBox.addEventListener("input",function(){ if(!state.draftNotes) state.draftNotes={}; state.draftNotes[ex.id]=noteBox.value; });
+  card.appendChild(noteBox);
+
   card._controls=controls; card._rowsBox=rowsBox; card._ex=ex; card._remBtn=remBtn;
   return card;
 }
@@ -621,9 +643,12 @@ function saveSession(){
     if(clean.length) entries[exId]=clean;
   }
   var session={id:uid(),date:state.entryDate,dayId:state.dayId,entries:entries,createdAt:Date.now()};
+  var notes={};
+  for(var nId in (state.draftNotes||{})){ var t=(state.draftNotes[nId]||"").trim(); if(t) notes[nId]=t; }
+  if(Object.keys(notes).length) session.notes=notes;
   sessions.push(session); sessions.sort(function(a,b){return a.date.localeCompare(b.date);});
   state.saveError=!saveSessions(sessions);
-  loggerCounterEl=null; state.dayId=null; state.draft={}; state.view="history"; render();
+  loggerCounterEl=null; state.dayId=null; state.draft={}; state.draftNotes={}; state.view="history"; render();
 }
 
 /* ---- Historial ---- */
@@ -664,6 +689,7 @@ function History(){
         return set.seconds!=null?(set.seconds+"s"):((set.reps!=null?set.reps:"–")+(set.weight!=null?"×"+set.weight+"kg":""));
       }).join("  ·  ");
       body.appendChild(h("div",{class:"detLine",html:"<b>"+esc(ex?ex.name:exId)+": </b>"+esc(parts)}));
+      if(s.notes&&s.notes[exId]) body.appendChild(h("div",{class:"histNote",html:"📝 "+esc(s.notes[exId])}));
     })(exId); }
     det.appendChild(body); card.appendChild(det);
     grid.appendChild(card);
