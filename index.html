@@ -104,6 +104,29 @@
   .exNote:focus{outline:none;border-color:var(--accent);background:#fff;}
   .exNoteLab{font-size:12px;color:var(--muted);font-weight:600;margin-top:12px;display:flex;align-items:center;gap:5px;}
   .histNote{font-size:13px;color:#6A6F76;font-style:italic;margin:2px 0 4px;padding-left:10px;border-left:2px solid var(--line2);}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;}
+  .legItem{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#5A5F67;font-weight:600;}
+  .legDot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+  .gRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;}
+  .gCard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;}
+  .gVal{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;}
+  .gLab{font-size:11px;color:var(--muted);font-weight:600;margin-top:5px;}
+  .gFlame{color:#F97316;}
+  .badgeGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .badge{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;position:relative;overflow:hidden;}
+  .badge.locked{background:var(--soft);}
+  .badge.locked .badgeEmo{filter:grayscale(1);opacity:.4;}
+  .badge.locked .badgeT{color:#AEB2B8;}
+  .badgeEmo{font-size:26px;line-height:1;}
+  .badgeT{font-size:12px;font-weight:800;margin-top:6px;color:var(--ink);}
+  .badgeD{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3;}
+  .badgeProg{height:4px;background:var(--line);border-radius:3px;margin-top:7px;overflow:hidden;}
+  .badgeProgFill{height:100%;background:var(--accent);border-radius:3px;}
+  .badgeDone{position:absolute;top:6px;right:7px;font-size:12px;color:var(--accent);}
+  .prBanner{background:linear-gradient(135deg,#0E7C66,#14B8A6);color:#fff;border-radius:16px;padding:15px 16px;margin-bottom:14px;position:relative;}
+  .prBanner h4{margin:0 0 4px;font-size:15px;font-weight:800;}
+  .prBanner .prList{font-size:13px;opacity:.95;line-height:1.5;}
+  .prClose{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;width:26px;height:26px;font-size:15px;}
   .sheetOv{position:fixed;inset:0;background:rgba(17,18,20,.6);display:flex;align-items:flex-end;justify-content:center;z-index:120;}
   .sheet{background:#fff;width:min(480px,100%);border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;}
   .sheetH{font-size:17px;font-weight:800;margin-bottom:14px;}
@@ -181,31 +204,31 @@ function ico(name, size, sw){
 /* ================= PLAN (del PDF) ================= */
 var PLAN = [
   {id:1, short:"Día 1", name:"Piernas y Glúteos", exercises:[
-    {id:"d1e1", name:"Sentadilla · Barra", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,8], rest:120},
-    {id:"d1e2", name:"Peso muerto · Barra hexagonal", muscles:"Lumbar, Corvas, Glúteos", type:"weight", targets:[12,10,8], rest:120, note:"Carga muy poco o nada para ir cogiendo la técnica poco a poco."},
-    {id:"d1e3", name:"Prensa a 45°", muscles:"Cuádriceps, Glúteos", type:"weight", targets:[12,10,10,10], rest:90},
-    {id:"d1e4", name:"Curl femoral sentado", muscles:"Corvas", type:"weight", targets:[12,10,10,10], rest:60},
-    {id:"d1e5", name:"Extensión de piernas sentado", muscles:"Cuádriceps", type:"weight", targets:[12,10,10], rest:60},
-    {id:"d1e6", name:"Hip thrust alto", muscles:"Glúteos", type:"weight", targets:[12,12,12,12], rest:90, note:"De momento solo para coger técnica del movimiento."}
+    {id:"d1e1", name:"Sentadilla · Barra", muscles:"Cuádriceps, Glúteos", group:"Cuádriceps", type:"weight", targets:[12,10,8], rest:120},
+    {id:"d1e2", name:"Peso muerto · Barra hexagonal", muscles:"Lumbar, Corvas, Glúteos", group:"Glúteos e isquios", type:"weight", targets:[12,10,8], rest:120, note:"Carga muy poco o nada para ir cogiendo la técnica poco a poco."},
+    {id:"d1e3", name:"Prensa a 45°", muscles:"Cuádriceps, Glúteos", group:"Cuádriceps", type:"weight", targets:[12,10,10,10], rest:90},
+    {id:"d1e4", name:"Curl femoral sentado", muscles:"Corvas", group:"Glúteos e isquios", type:"weight", targets:[12,10,10,10], rest:60},
+    {id:"d1e5", name:"Extensión de piernas sentado", muscles:"Cuádriceps", group:"Cuádriceps", type:"weight", targets:[12,10,10], rest:60},
+    {id:"d1e6", name:"Hip thrust alto", muscles:"Glúteos", group:"Glúteos e isquios", type:"weight", targets:[12,12,12,12], rest:90, note:"De momento solo para coger técnica del movimiento."}
   ]},
   {id:2, short:"Día 2", name:"Pecho, Bíceps y Tríceps", exercises:[
-    {id:"d2e1", name:"Press de pectoral en máquina", muscles:"Pecho", type:"weight", targets:[12,10,8], rest:90, note:"Máquina Pure Strength, junto a la jaula de sentadillas."},
-    {id:"d2e2", name:"Press de banca · Barra", muscles:"Pecho", type:"weight", targets:[12,12,12], rest:120, note:"Trabajar técnica con poco peso."},
-    {id:"d2e3", name:"Planchas", muscles:"Pecho / Core", type:"time", targets:[40,40,40], rest:45, note:"Realizar cambios de posición."},
-    {id:"d2e4", name:"Fly · Kinesis", muscles:"Pecho", type:"weight", targets:[12,10,8], rest:60},
-    {id:"d2e5", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
-    {id:"d2e6", name:"Curl isométrico · Pulley", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
-    {id:"d2e7", name:"Extensión de codo", muscles:"Tríceps", type:"weight", targets:[12,10,8], rest:60},
-    {id:"d2e8", name:"Fondos de tríceps · Caja", muscles:"Tríceps", type:"reps", targets:[12,10,8], rest:60}
+    {id:"d2e1", name:"Press de pectoral en máquina", muscles:"Pecho", group:"Pecho", type:"weight", targets:[12,10,8], rest:90, note:"Máquina Pure Strength, junto a la jaula de sentadillas."},
+    {id:"d2e2", name:"Press de banca · Barra", muscles:"Pecho", group:"Pecho", type:"weight", targets:[12,12,12], rest:120, note:"Trabajar técnica con poco peso."},
+    {id:"d2e3", name:"Planchas", muscles:"Pecho / Core", group:"Core", type:"time", targets:[40,40,40], rest:45, note:"Realizar cambios de posición."},
+    {id:"d2e4", name:"Fly · Kinesis", muscles:"Pecho", group:"Pecho", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e5", name:"Curl de bíceps de pie", muscles:"Bíceps", group:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e6", name:"Curl isométrico · Pulley", muscles:"Bíceps", group:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e7", name:"Extensión de codo", muscles:"Tríceps", group:"Tríceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d2e8", name:"Fondos de tríceps · Caja", muscles:"Tríceps", group:"Tríceps", type:"reps", targets:[12,10,8], rest:60}
   ]},
   {id:3, short:"Día 3", name:"Espalda y Bíceps", exercises:[
-    {id:"d3e1", name:"Jalón al pecho", muscles:"Dorsales", type:"weight", targets:[12,10,8], rest:90},
-    {id:"d3e2", name:"Remo mancuerna transversal (izq.)", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
-    {id:"d3e3", name:"Máquina de remos sagital", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
-    {id:"d3e4", name:"Remo con mancuernas", muscles:"Espalda", type:"weight", targets:[12,10,8], rest:90},
-    {id:"d3e5", name:"Dominadas", muscles:"Espalda", type:"reps", targets:[12,10,8], rest:90},
-    {id:"d3e6", name:"Curl de bíceps de pie", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
-    {id:"d3e7", name:"Predicador · Barra", muscles:"Bíceps", type:"weight", targets:[12,10,8], rest:60}
+    {id:"d3e1", name:"Jalón al pecho", muscles:"Dorsales", group:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e2", name:"Remo mancuerna transversal (izq.)", muscles:"Espalda", group:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e3", name:"Máquina de remos sagital", muscles:"Espalda", group:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e4", name:"Remo con mancuernas", muscles:"Espalda", group:"Espalda", type:"weight", targets:[12,10,8], rest:90},
+    {id:"d3e5", name:"Dominadas", muscles:"Espalda", group:"Espalda", type:"reps", targets:[12,10,8], rest:90},
+    {id:"d3e6", name:"Curl de bíceps de pie", muscles:"Bíceps", group:"Bíceps", type:"weight", targets:[12,10,8], rest:60},
+    {id:"d3e7", name:"Predicador · Barra", muscles:"Bíceps", group:"Bíceps", type:"weight", targets:[12,10,8], rest:60}
   ]}
 ];
 var ALL = PLAN.reduce(function(a,d){return a.concat(d.exercises);},[]);
@@ -646,6 +669,15 @@ function saveSession(){
   var notes={};
   for(var nId in (state.draftNotes||{})){ var t=(state.draftNotes[nId]||"").trim(); if(t) notes[nId]=t; }
   if(Object.keys(notes).length) session.notes=notes;
+  // Récords: ¿algún ejercicio supera su mejor peso anterior?
+  var prs=[];
+  for(var pid in entries){ var ex=findEx(pid); if(!ex||ex.type!=="weight") continue;
+    var newMax=0; entries[pid].forEach(function(x){ if((x.weight||0)>newMax) newMax=x.weight||0; });
+    if(newMax<=0) continue;
+    var prevMax=0; sessions.forEach(function(ps){ if(!ps.entries[pid]) return; ps.entries[pid].forEach(function(x){ if((x.weight||0)>prevMax) prevMax=x.weight||0; }); });
+    if(prevMax>0 && newMax>prevMax) prs.push({name:ex.name, w:newMax, prev:prevMax});
+  }
+  state.lastPRs=prs.length?prs:null;
   sessions.push(session); sessions.sort(function(a,b){return a.date.localeCompare(b.date);});
   state.saveError=!saveSessions(sessions);
   loggerCounterEl=null; state.dayId=null; state.draft={}; state.draftNotes={}; state.view="history"; render();
@@ -655,6 +687,16 @@ function saveSession(){
 function History(){
   if(!sessions.length) return Empty("Tu historial está vacío","Registra tu primera sesión y aparecerá aquí, ordenada por fecha.","Entrenar ahora",function(){ state.view="train"; render(); });
   var wrap=h("div",{});
+  if(state.lastPRs&&state.lastPRs.length){
+    var pr=h("div",{class:"prBanner"});
+    var close=h("button",{class:"prClose",onclick:function(){ state.lastPRs=null; render(); }},"×");
+    pr.appendChild(close);
+    pr.appendChild(h("h4",{},"🎉 ¡Nuevo récord personal!"));
+    var list=h("div",{class:"prList"});
+    state.lastPRs.forEach(function(p){ list.appendChild(h("div",{},"💪 "+p.name+": "+p.w+" kg (antes "+p.prev+" kg)")); });
+    pr.appendChild(list);
+    wrap.appendChild(pr);
+  }
   wrap.appendChild(h("div",{class:"sectionLabel"}, sessions.length+(sessions.length===1?" sesión registrada":" sesiones registradas")));
   var grid=h("div",{style:"display:grid;gap:12px"});
   var ordered=sessions.slice().sort(function(a,b){ return b.date.localeCompare(a.date)||b.createdAt-a.createdAt; });
@@ -776,7 +818,19 @@ function Stats(){
     bigStat(sessions.length,"Sesiones"), bigStat(weeksTrained,"Semanas"), bigStat(compliance+"%","Cumplimiento"));
   wrap.appendChild(top);
 
-  wrap.appendChild(h("div",{class:"sectionLabel"},"Sesiones por semana"));
+  wrap.appendChild(h("div",{class:"sectionLabel"},"Logros y racha"));
+  wrap.appendChild(gamification());
+
+  wrap.appendChild(h("div",{class:"sectionLabel",style:"margin-top:22px"},"Kilos por grupo muscular"));
+  var mdata=muscleWeeklyData();
+  var mcard=h("div",{class:"chartCard"}, elHTML(muscleChart(mdata)));
+  if(mdata.groups.length){ var leg=h("div",{class:"legend"});
+    mdata.groups.forEach(function(m){ leg.appendChild(h("span",{class:"legItem"}, h("span",{class:"legDot",style:"background:"+m.color}), m.key)); });
+    mcard.appendChild(leg); }
+  mcard.appendChild(h("div",{class:"chartHint",style:"margin-top:8px"},"Volumen semanal (reps × kg) apilado por grupo. Últimas 8 semanas."));
+  wrap.appendChild(mcard);
+
+  wrap.appendChild(h("div",{class:"sectionLabel",style:"margin-top:22px"},"Sesiones por semana"));
   wrap.appendChild(h("div",{class:"chartCard"}, elHTML(weeklyChart()),
     h("div",{class:"chartHint"},"La línea marca el objetivo de 3/semana")));
 
@@ -794,6 +848,101 @@ function Stats(){
   return wrap;
 }
 function bigStat(v,l){ return h("div",{class:"bigStat"}, h("div",{class:"v"}, v), h("div",{class:"l"}, l)); }
+
+/* ---- Kg por grupo muscular y semana ---- */
+var MGROUPS=[
+  {key:"Cuádriceps", color:"#0E7C66"},
+  {key:"Glúteos e isquios", color:"#14B8A6"},
+  {key:"Espalda", color:"#6366F1"},
+  {key:"Pecho", color:"#F59E0B"},
+  {key:"Bíceps", color:"#EC4899"},
+  {key:"Tríceps", color:"#EF4444"},
+  {key:"Core", color:"#94A3B8"}
+];
+function kfmt(v){ v=Math.round(v); return v>=1000?((Math.round(v/100)/10)+"k"):(""+v); }
+function niceStep(max){ var raw=(max/4)||1; var pow=Math.pow(10,Math.floor(Math.log10(raw))); var n=raw/pow; var s=n<=1?1:n<=2?2:n<=5?5:10; return s*pow; }
+function muscleWeeklyData(){
+  var now=new Date(), weeks=[];
+  for(var i=7;i>=0;i--){ var d=new Date(now); d.setDate(now.getDate()-i*7);
+    var iso=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+    weeks.push({wk:isoWeek(iso), label:weekLabel(iso), g:{}, total:0}); }
+  var byWk={}; weeks.forEach(function(w){ byWk[w.wk]=w; });
+  sessions.forEach(function(s){ var w=byWk[isoWeek(s.date)]; if(!w) return;
+    for(var exId in s.entries){ var ex=findEx(exId); if(!ex) continue; var grp=ex.group||"Otros"; var vol=0;
+      s.entries[exId].forEach(function(set){ vol+=(set.reps||0)*(set.weight||0); });
+      if(vol>0){ w.g[grp]=(w.g[grp]||0)+vol; w.total+=vol; } } });
+  var active=MGROUPS.filter(function(m){ return weeks.some(function(w){ return (w.g[m.key]||0)>0; }); });
+  var maxTotal=Math.max.apply(null, weeks.map(function(w){return w.total;}).concat([0]));
+  return {weeks:weeks, groups:active, maxTotal:maxTotal};
+}
+function muscleChart(data){
+  var weeks=data.weeks, groups=data.groups, maxV=data.maxTotal;
+  if(maxV<=0) return '<div style="height:160px;display:flex;align-items:center;justify-content:center;color:#B4B8BD;font-size:13px;text-align:center;padding:0 24px">Aún no hay kilos registrados. Anota el peso en tus series y verás aquí el reparto por músculo.</div>';
+  var W=436,H=180,padL=30,padB=22,padT=10, plotH=H-padB-padT, plotW=W-padL-10, n=weeks.length, bw=plotW/n*0.62;
+  var step=niceStep(maxV), top=Math.max(step, Math.ceil(maxV/step)*step);
+  var svg='<svg width="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">';
+  for(var t=0;t<=4;t++){ var val=top*t/4, y=padT+plotH-(val/top)*plotH;
+    svg+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-10)+'" y2="'+y+'" stroke="#EEEEE8" stroke-dasharray="2 4"/>';
+    svg+='<text x="'+(padL-5)+'" y="'+(y+3)+'" font-size="9" fill="#9AA0A6" text-anchor="end">'+kfmt(val)+'</text>'; }
+  weeks.forEach(function(w,i){ var cx=padL+(i+0.5)*(plotW/n), yBase=padT+plotH;
+    groups.forEach(function(m){ var v=w.g[m.key]||0; if(v<=0) return; var segH=(v/top)*plotH, y=yBase-segH;
+      svg+='<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+segH.toFixed(1)+'" fill="'+m.color+'"/>'; yBase=y; });
+    svg+='<text x="'+cx.toFixed(1)+'" y="'+(H-6)+'" font-size="9" fill="#9AA0A6" text-anchor="middle">'+w.label+'</text>'; });
+  svg+='</svg>'; return svg;
+}
+
+/* ---- Gamificación ---- */
+function computeStreak(){
+  var wk={}; sessions.forEach(function(s){ wk[isoWeek(s.date)]=true; });
+  function isoOf(d){ return isoWeek(d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())); }
+  var cur=new Date(); if(!wk[isoOf(cur)]) cur.setDate(cur.getDate()-7);
+  var n=0, guard=0; while(wk[isoOf(cur)] && guard<520){ n++; cur.setDate(cur.getDate()-7); guard++; }
+  return n;
+}
+function totalVolume(){ var v=0; sessions.forEach(function(s){ for(var k in s.entries) s.entries[k].forEach(function(x){ v+=(x.reps||0)*(x.weight||0); }); }); return Math.round(v); }
+function maxWeekCount(){ var m={}; sessions.forEach(function(s){ var k=isoWeek(s.date); m[k]=(m[k]||0)+1; }); var mx=0; for(var k in m) if(m[k]>mx) mx=m[k]; return mx; }
+function hasAnyPR(){
+  var best={}; var ordered=sessions.slice().sort(function(a,b){ return a.date.localeCompare(b.date)||((a.createdAt||0)-(b.createdAt||0)); });
+  for(var i=0;i<ordered.length;i++){ var s=ordered[i];
+    for(var exId in s.entries){ var ex=findEx(exId); if(!ex||ex.type!=="weight") continue; var mx=0;
+      s.entries[exId].forEach(function(x){ if((x.weight||0)>mx) mx=x.weight||0; });
+      if(mx>0){ if(best[exId]!=null && mx>best[exId]) return true; if(best[exId]==null||mx>best[exId]) best[exId]=mx; } } }
+  return false;
+}
+function tonsLabel(kg){ if(kg>=1000){ var t=kg/1000; return (t>=10?Math.round(t):Math.round(t*10)/10)+" t"; } return kg+" kg"; }
+function gamification(){
+  var wrap=h("div",{});
+  var streak=computeStreak(), tv=totalVolume(), mw=maxWeekCount(), total=sessions.length, pr=hasAnyPR();
+  wrap.appendChild(h("div",{class:"gRow"},
+    h("div",{class:"gCard"}, h("div",{class:"gVal gFlame"}, "🔥 "+streak), h("div",{class:"gLab"},"racha (sem)")),
+    h("div",{class:"gCard"}, h("div",{class:"gVal"}, tonsLabel(tv)), h("div",{class:"gLab"},"peso movido")),
+    h("div",{class:"gCard"}, h("div",{class:"gVal"}, mw), h("div",{class:"gLab"},"mejor semana"))));
+  var badges=[
+    {e:"🏋️", t:"Primer entreno", d:"Tu 1.ª sesión", done:total>=1},
+    {e:"✅", t:"Semana redonda", d:"3 en 7 días", done:mw>=3},
+    {e:"🥇", t:"Nuevo récord", d:"Supera un máximo", done:pr},
+    {e:"🎯", t:"10 entrenos", d:"10 sesiones", val:total, goal:10},
+    {e:"🔥", t:"Racha x4", d:"4 semanas", val:streak, goal:4},
+    {e:"🔥", t:"Racha x8", d:"8 semanas", val:streak, goal:8},
+    {e:"💪", t:"1 tonelada", d:"1.000 kg", val:tv, goal:1000},
+    {e:"🚛", t:"10 toneladas", d:"10.000 kg", val:tv, goal:10000},
+    {e:"🏆", t:"25 entrenos", d:"25 sesiones", val:total, goal:25}
+  ];
+  var grid=h("div",{class:"badgeGrid"});
+  badges.forEach(function(b){
+    var done = (b.done!=null) ? b.done : (b.val>=b.goal);
+    var card=h("div",{class:"badge"+(done?"":" locked")});
+    if(done) card.appendChild(h("div",{class:"badgeDone"},"✓"));
+    card.appendChild(h("div",{class:"badgeEmo"}, b.e));
+    card.appendChild(h("div",{class:"badgeT"}, b.t));
+    card.appendChild(h("div",{class:"badgeD"}, b.d));
+    if(!done && b.goal){ var pct=Math.max(0,Math.min(1,(b.val||0)/b.goal));
+      card.appendChild(h("div",{class:"badgeProg"}, h("div",{class:"badgeProgFill",style:"width:"+(pct*100).toFixed(0)+"%"}))); }
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
 
 function weeklyChart(){
   var map={}; sessions.forEach(function(s){ var k=isoWeek(s.date); map[k]=(map[k]||0)+1; });
